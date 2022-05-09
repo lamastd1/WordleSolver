@@ -10,7 +10,7 @@ while (valid_word == 0):
   wordle_word = wordle_word.upper()
 
   # open the list of all possible wordle words
-  wordleDic = open('wordle_words.txt', 'r')
+  wordleDic = open('wordle_guesses.txt', 'r')
 
   # loop through each word in the set of all possible wordle words and see if the word is allowed
   for line in wordleDic.readlines():
@@ -34,6 +34,7 @@ output_string = ""
 #calculate how many guesses you have
 guess_count = 1
 
+# loop until the guess is correct 
 while (wordle_word != guess):
 
   # if the user is using a calculator
@@ -91,7 +92,7 @@ while (wordle_word != guess):
 
     print ("Congrats, you beat the game!")
     break 
-  
+
   # clear the user's old guess
   guess = ""
 
