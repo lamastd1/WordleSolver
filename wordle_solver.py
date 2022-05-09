@@ -1,5 +1,47 @@
 # program to solve wordle
 
+class Word:
+
+  # creates the word classes
+  def __init__(self, word, possible):
+
+    self.word = word
+    self.possible = possible
+    self.entropy = 0
+
+  # function used to return entropy of a particular word
+  def find_entropy(s):
+    if (s.possible):
+      s.entropy += 1
+
+# create a list to hold all possible guesses
+guesses = []
+
+# open the list of all possible wordle words
+wordleDic = open('wordle_guesses.txt', 'r')
+
+def binary_search(line):
+  pass
+
+# reads in all the data from the guesses file to be stored into an array
+for line in wordleDic.readlines():
+  line = line.strip()
+  line = line.upper()
+  guess = Word(line, False) 
+  guesses.append(guess)
+
+# close the guesses file
+wordleDic.close()
+
+# open the list of all possible answers
+wordleAnswers = open('wordle_answers.txt', 'r')
+
+# check if a word is possible to be a valid answer
+for line in wordleAnswers.readlines():
+  line = line.strip()
+  line = line.upper()
+  binary_search(line)
+
 # ensures that the word is a valid word
 valid_word = 0
 
@@ -10,11 +52,12 @@ while (valid_word == 0):
   wordle_word = wordle_word.upper()
 
   # open the list of all possible wordle words
-  wordleDic = open('wordle_guesses.txt', 'r')
+  wordleDic = open('wordle_answers.txt', 'r')
 
   # loop through each word in the set of all possible wordle words and see if the word is allowed
   for line in wordleDic.readlines():
     line = line.strip()
+    line = line.upper()
     if (wordle_word == line):
       valid_word = 1
       break
@@ -28,6 +71,7 @@ mode = input("Do you want to play wordle or use calculator \n0: play wordle \n1:
 
 # define what the user's guess will be 
 guess = ""
+
 # string to handle current user progress
 output_string = ""
 
@@ -92,6 +136,10 @@ while (wordle_word != guess):
 
     print ("Congrats, you beat the game!")
     break 
+
+  else:
+    if (mode == 1):
+      pass
 
   # clear the user's old guess
   guess = ""
