@@ -1,5 +1,7 @@
 # program to solve wordle
 
+import re
+
 class Word:
 
   # creates the word classes
@@ -36,6 +38,11 @@ def append_wordlist(guesses):
   for line in wordleDic.readlines():
     line = line.strip()
     line = line.upper()
+    for i in range(0, 5):
+      if (len(re.findall(line[i], line)) > 2):
+        print(line)
+        break
+
     guess = Word(line, False) 
     guesses.append(guess)
 
@@ -58,8 +65,8 @@ def append_answers(guesses):
 def validate_guess(guesses):
 
   # tell the user to enter a word
-  wordle_word = input("Enter a five letter word: ")
-  wordle_word = wordle_word.upper()
+  solution = input("Enter a five letter word: ")
+  solution = solution.upper()
 
   # ensures that the word is a valid word
   valid_word = 0
@@ -73,18 +80,18 @@ def validate_guess(guesses):
     for line in wordleDic.readlines():
       line = line.strip()
       line = line.upper()
-      if (wordle_word == line):
+      if (solution == line):
         valid_word = 1
-        return wordle_word
+        return solution
     
     # tell the user to enter a word
     validate_guess(guesses)
   
 # plays the game 
-def play_game(wordle_word, guesses):
+def play_game(solution, guesses):
 
   # choose what method is being played
-  mode = input("Do you want to play wordle or use calculator \n0: play wordle \n1: calculator\n")
+  mode = int(input("Do you want to play wordle or use calculator \n0: play wordle \n1: calculator\n"))
 
   # - denotes the character is correct in the right place
   # + denotes the character is correct in the wrong place
@@ -100,7 +107,7 @@ def play_game(wordle_word, guesses):
   guess_count = 1
 
   # loop until the guess is correct 
-  while (wordle_word != guess):
+  while (solution != guess):
 
     # if the user is using a calculator
     if (mode == 1):
@@ -110,6 +117,7 @@ def play_game(wordle_word, guesses):
 
     # if the user is playing regular wordle
     else:
+      guess = validate_guess(guesses)
 
       # have the user enter a new guess
       #while (len(guess) != 5):
@@ -119,7 +127,6 @@ def play_game(wordle_word, guesses):
 
         # convert guess to upper to make it easier to compare strings
         #guess = guess.upper()
-      guess = validate_guess(guesses)
 
     # show the user what there current output is
     print("Guess " + str(guess_count) + ": " + guess)
@@ -127,11 +134,26 @@ def play_game(wordle_word, guesses):
     # loop through each character of the guess and the wordle word at the same time
     for i in range(0, 5):
 
-      # check if the character is in the substring
-      if guess[i] in wordle_word:
+      # check if the character in the guess is in the wordle word and how often it appears
+      count_solution = len(re.findall(guess[i], solution))
+      
+      # check how often the character appears in the guess
+      count_guess = len(re.findall(guess[i], guess))
+
+      # if a guess has a character repeat more than what is in the solution, count how many have already been handled
+      count_mult = 0
+
+      # the character from the guess is not in the solution
+      if count_solution == 0:
+
+        # character is not in the word so it recieves a x
+        output_string += "x"
+
+      # the character from the guess is in the word once
+      elif count_guess == 1 or count_guess == count_solution:
         
         # check if the character is in the right position
-        if (guess[i] == wordle_word[i]):
+        if (guess[i] == solution[i]):
 
           # character is in the right place so it recieves a -
           output_string += "-"
@@ -139,14 +161,56 @@ def play_game(wordle_word, guesses):
         # character is in the wrong place
         else:
 
-          # character is in the right place so it recieves a -
+          # character is in the wrong place so it recieves a +
           output_string += "+"
       
-      # character is in the wrong place
+      # the character from the guess is in the word multiple times
+      elif count_guess > count_solution:
+
+        for j in range(0, 5):
+
+          if (guess[j] == solution[j]) or (guess[j] == guess[i] and j < i and len(output_string) > j and output_string[j] == "+"):
+
+            count_mult = count_mult + 1
+        
+        
+          
+        # check if the character is in the right place
+        if guess[i] == solution[i]:
+
+          # assign a - to the output string
+          output_string += "-"
+
+        # check if every instance of the character has been hit and if the character is in the right spot
+        elif count_mult < count_solution and guess[i] != solution[i]:
+
+          # assign a + to the output string
+          output_string += "+"
+
+        else:
+  
+          # assign an x to the output string
+          output_string += "x"
+
+        print("------------BEGIN OF DEBUG AREA------------")
+        print (guess + " " + guess[i])
+        print(solution + " " + solution[i])
+        print("i: " + str(i))
+        print("count_guess: " + str(count_guess))
+        print("count_solution: " + str(count_solution))
+        print("this is where more instances in the guess will be handled")
+        print("-------------END OF DEBUG AREA-------------")
+      
       else:
 
-        # character is in the wrong place so it recieves a x
-        output_string += "x"
+        print("------------BEGIN OF DEBUG AREA------------")
+        print (guess + " " + guess[i])
+        print(solution + " " + solution[i])
+        print("i: " + str(i))
+        print("count_guess: " + str(count_guess))
+        print("count_solution: " + str(count_solution))
+        print("this is where more instances in the solution will be handled")
+        print("-------------END OF DEBUG AREA-------------")
 
     # give the user a menu showing their total
     print("--------------------------------------------------")
@@ -162,8 +226,6 @@ def play_game(wordle_word, guesses):
 
     else:
 
-      print("mode: ")
-      print(mode)
       if (mode == 1):
         print("mode 1")
         print()
@@ -186,7 +248,7 @@ if __name__ == "__main__":
   append_answers(guesses)
 
   # recieve a valid guess from user
-  wordle_word = validate_guess(guesses)
+  solution = validate_guess(guesses)
   
   # play the game
-  play_game(wordle_word, guesses)
+  play_game(solution, guesses)
