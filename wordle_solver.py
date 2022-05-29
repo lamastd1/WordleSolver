@@ -38,10 +38,10 @@ def append_wordlist(guesses):
   for line in wordleDic.readlines():
     line = line.strip()
     line = line.upper()
-    for i in range(0, 5):
-      if (len(re.findall(line[i], line)) > 2):
-        print(line)
-        break
+    # for i in range(0, 5):
+    #   if (len(re.findall(line[i], line)) > 2):
+    #     print(line)
+    #     break
 
     guess = Word(line, False) 
     guesses.append(guess)
@@ -65,6 +65,7 @@ def append_answers(guesses):
 def validate_guess(guesses):
 
   # tell the user to enter a word
+  solution = ""
   solution = input("Enter a five letter word: ")
   solution = solution.upper()
 
@@ -85,7 +86,7 @@ def validate_guess(guesses):
         return solution
     
     # tell the user to enter a word
-    validate_guess(guesses)
+    return validate_guess(guesses)
   
 # plays the game 
 def play_game(solution, guesses):
@@ -118,18 +119,6 @@ def play_game(solution, guesses):
     # if the user is playing regular wordle
     else:
       guess = validate_guess(guesses)
-
-      # have the user enter a new guess
-      #while (len(guess) != 5):
-
-        # have the user input their next guess
-        #guess = input("Enter your next guess, must be five letters: ")
-
-        # convert guess to upper to make it easier to compare strings
-        #guess = guess.upper()
-
-    # show the user what there current output is
-    print("Guess " + str(guess_count) + ": " + guess)
 
     # loop through each character of the guess and the wordle word at the same time
     for i in range(0, 5):
@@ -214,9 +203,12 @@ def play_game(solution, guesses):
 
     # give the user a menu showing their total
     print("--------------------------------------------------")
-    print("USER GUESS:   " + guess)
-    print("OUTPUT SCORE: " + output_string)
+    print("USER GUESS: \t" + guess + "\t\t COUNT: " + str(guess_count))
+    print("OUTPUT SCORE: \t" + output_string)
     print("--------------------------------------------------")
+
+    # increment the guess count for the user
+    guess_count = guess_count + 1
 
     # check to see if the game was finished
     if (output_string == "-----"):
