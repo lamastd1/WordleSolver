@@ -1,6 +1,7 @@
 # program to solve wordle
 
 import re
+import random
 
 class Word:
 
@@ -12,9 +13,9 @@ class Word:
     self.entropy = 0
 
   # function used to return entropy of a particular word
-  def find_entropy(s):
-    if (s.possible):
-      s.entropy += 1
+  def initilize_answer_entropy(self):
+    if (self.possible):
+      self.entropy += 1
 
 # helper method algorithim to quicksort an array
 def quick_sort():
@@ -38,10 +39,6 @@ def append_wordlist(guesses):
   for line in wordleDic.readlines():
     line = line.strip()
     line = line.upper()
-    # for i in range(0, 5):
-    #   if (len(re.findall(line[i], line)) > 2):
-    #     print(line)
-    #     break
 
     guess = Word(line, False) 
     guesses.append(guess)
@@ -50,7 +47,7 @@ def append_wordlist(guesses):
   wordleDic.close()
 
 # add if each word is a possible answer
-def append_answers(guesses):
+def append_answers(answers):
 
   # open the list of all possible answers
   wordleAnswers = open('wordle_answers.txt', 'r')
@@ -59,7 +56,11 @@ def append_answers(guesses):
   for line in wordleAnswers.readlines():
     line = line.strip()
     line = line.upper()
-    binary_search(line, guesses)
+
+    answer = Word(line, True) 
+    answer.initilize_answer_entropy() 
+    answers.append(answer)
+    
 
 # allow the user to enter a correct guess
 def validate_guess(guesses):
@@ -72,24 +73,54 @@ def validate_guess(guesses):
   # ensures that the word is a valid word
   valid_word = 0
 
+  # iterate over all the words to determine if the word is valid
   while (valid_word == 0):
 
-    # open the list of all possible wordle words
-    wordleDic = open('wordle_guesses.txt', 'r')
-
     # loop through each word in the set of all possible wordle words and see if the word is allowed
-    for line in wordleDic.readlines():
-      line = line.strip()
-      line = line.upper()
-      if (solution == line):
+    for guess in guesses:
+      word = guess.word
+      if (solution == word):
         valid_word = 1
         return solution
     
     # tell the user to enter a word
     return validate_guess(guesses)
   
+def find_optimal_guess(guesses, answers):
+  
+  # used to change the ASCII so 
+  ASCII_CONVERTER = 65
+  # hold the letters a-z and the 5 locations where each letter could be to count how often a letter appears in a certain position
+  rows, cols = (26, 5)
+  letter_frequencies_per_spot = [[0 for i in range(cols)] for j in range(rows)]
+  letter_frequencies_total = [0 for i in range(rows)]
+  letter_frequencies_wrong_place = [0 for i in range(rows)]
+  letter_frequencies_not_seen = [0 for i in range(rows)]
+
+  # loop through the answers to see where the location can be increased
+  for i in range(0, len(answers)):
+
+    # keep track of what characters have already been seen
+    seen_chars = [0 for i in range(rows)]
+    for j in range(0, cols):
+      found_char = ord(answers[i].word[j:j+1]) - ASCII_CONVERTER
+      letter_frequencies_per_spot[found_char][j] += 1
+      letter_frequencies_total[found_char] += 1
+      seen_chars[found_char] += 1
+    
+    print(str(letter_frequencies_not_seen[0]) + " " + str(letter_frequencies_wrong_place[0]) + " " + str(letter_frequencies_total[0]) + " end")
+    for i in range(0, rows):
+      if (seen_chars[i] == 0):
+        letter_frequencies_not_seen[i] += 5
+      else:
+        letter_frequencies_wrong_place[i] += 5 - seen_chars[i]
+
+  # print the array
+  for i in range(26):
+    print(letter_frequencies_not_seen[i] + letter_frequencies_total[i] + letter_frequencies_wrong_place[i])
+
 # plays the game 
-def play_game(solution, guesses):
+def play_game(solution, guesses, answers):
 
   # choose what method is being played
   mode = int(input("Do you want to play wordle or use calculator \n0: play wordle \n1: calculator\n"))
@@ -114,7 +145,7 @@ def play_game(solution, guesses):
     if (mode == 1):
 
       # due to information theory, the first word to guess is always CRANE
-      guess = "CRANE"
+      guess = find_optimal_guess(guesses, answers)
 
     # if the user is playing regular wordle
     else:
@@ -180,15 +211,6 @@ def play_game(solution, guesses):
   
           # assign an x to the output string
           output_string += "x"
-
-        print("------------BEGIN OF DEBUG AREA------------")
-        print (guess + " " + guess[i])
-        print(solution + " " + solution[i])
-        print("i: " + str(i))
-        print("count_guess: " + str(count_guess))
-        print("count_solution: " + str(count_solution))
-        print("this is where more instances in the guess will be handled")
-        print("-------------END OF DEBUG AREA-------------")
       
       else:
 
@@ -232,15 +254,17 @@ if __name__ == "__main__":
 
   # create a list to hold all possible guesses
   guesses = []
+  answers = []
   
   # append each word to the wordlist 
   append_wordlist(guesses)
 
   # determine if each word is an answer or not
-  append_answers(guesses)
+  append_answers(answers)
 
   # recieve a valid guess from user
-  solution = validate_guess(guesses)
+  solution_obj = random.choice(answers)
+  solution = solution_obj.word
   
   # play the game
-  play_game(solution, guesses)
+  play_game(solution, guesses, answers)
